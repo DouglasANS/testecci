@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Gerenciador de Ofícios</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background-color: #f4f4f4;
+    }
+
+    h1, h2 {
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 0.7rem;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.2rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 0.6rem 1.2rem;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 1.5rem;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .result {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      white-space: pre-wrap;
+    }
+
+    .section {
+      background: #ffffff;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Gerenciador de Ofícios</h1>
+
+  <!-- CONSULTA -->
+  <div class="section">
+    <h2>🔍 Consultar Ofício por ID</h2>
+    <label for="consultaId">ID</label>
+    <input type="number" id="consultaId" placeholder="Ex: 5">
+    <button onclick="consultar()">Consultar</button>
+    <div id="resultadoConsulta" class="result"></div>
+  </div>
+
+  <!-- ATUALIZAÇÃO -->
+  <div class="section">
+    <h2>✏️ Atualizar Ofício por ID</h2>
+    <label for="updateId">ID</label>
+    <input type="number" id="updateId" placeholder="ID do registro">
+
+    <label for="updateAssunto">ASSUNTO</label>
+    <textarea id="updateAssunto" placeholder="Novo assunto para atualizar"></textarea>
+
+    <button onclick="atualizar()">Atualizar</button>
+    <div id="resultadoAtualizacao" class="result"></div>
+  </div>
+
+  <!-- ADIÇÃO -->
+  <div class="section">
+    <h2>➕ Adicionar Novo Ofício</h2>
+
+    <label for="novoOficio">Nº Ofício</label>
+    <input id="novoOficio" placeholder="Ex: 999/2025">
+
+    <label for="novaData">Data</label>
+    <input id="novaData" placeholder="Ex: 29/01/2025">
+
+    <label for="novaSecretaria">Secretaria</label>
+    <input id="novaSecretaria" placeholder="Ex: PLANEJAMENTO">
+
+    <label for="novoAssunto">Assunto</label>
+    <textarea id="novoAssunto" placeholder="Descreva o assunto do ofício"></textarea>
+
+    <label for="digitalizado">Digitalizado</label>
+    <select id="digitalizado">
+      <option value="SIM">SIM</option>
+      <option value="NÃO">NÃO</option>
+    </select>
+
+    <button onclick="adicionar()">Adicionar</button>
+    <div id="resultadoAdicao" class="result"></div>
+  </div>
+
+  <script>
+    const BASE_URL = "https://script.google.com/macros/s/AKfycbzxfFFLe7k3TybOCE7JSRqx3Yxxuu4Fr6ExoTNAgS1SziFp_LpqoCFgf_rGUdj7WwdJGA/exec";
+
+    async function consultar() {
+      const id = document.getElementById("consultaId").value;
+      if (!id) return alert("Informe o ID");
+      const res = await fetch(`${BASE_URL}?action=get&id=${id}`);
+      const data = await res.json();
+      document.getElementById("resultadoConsulta").innerText = JSON.stringify(data, null, 2);
+    }
+
+    async function atualizar() {
+      const id = document.getElementById("updateId").value;
+      const assunto = document.getElementById("updateAssunto").value;
+      if (!id || !assunto) return alert("Preencha o ID e o novo assunto");
+
+      const updatedData = { "ASSUNTO": assunto };
+      const res = await fetch(`${BASE_URL}?action=update&id=${id}&data=${encodeURIComponent(JSON.stringify(updatedData))}`);
+      const data = await res.json();
+      document.getElementById("resultadoAtualizacao").innerText = JSON.stringify(data, null, 2);
+    }
+
+    async function adicionar() {
+      const novoOficio = document.getElementById("novoOficio").value;
+      const novaData = document.getElementById("novaData").value;
+      const novaSecretaria = document.getElementById("novaSecretaria").value;
+      const novoAssunto = document.getElementById("novoAssunto").value;
+      const digitalizado = document.getElementById("digitalizado").value;
+
+      if (!novoOficio || !novaData || !novaSecretaria || !novoAssunto) {
+        return alert("Preencha todos os campos obrigatórios");
+      }
+
+      const newData = {
+        "Nº Ofício": novoOficio,
+        "Data": novaData,
+        "SECRETARIA": novaSecretaria,
+        "ASSUNTO": novoAssunto,
+        "DIGITALIZADO": digitalizado
+      };
+
+      const res = await fetch(`${BASE_URL}?action=add&data=${encodeURIComponent(JSON.stringify(newData))}`);
+      const data = await res.json();
+      document.getElementById("resultadoAdicao").innerText = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
